@@ -1,81 +1,215 @@
-import { useEffect, useState } from "react";
-import { getPopularMovies } from "../services/tmdb";
+import { useEffect, useRef, useState } from "react";
+import {
+  getPopularMovies,
+  searchMovies,
+} from "../services/tmdb";
+
 import MovieCard from "../components/MovieCard";
 import SearchBar from "../components/SearchBar";
+import useDebounce from "../hooks/useDebounce";
 
 function Home() {
 
-    const [movies, setMovies] = useState([]);
-    const [search, setSearch] = useState("");
+  const [movies, setMovies] = useState([]);
+  const [search, setSearch] = useState("");
 
-    useEffect(() => {
+  const [page, setPage] = useState(1);
 
-        async function loadMovies() {
+  const [loading, setLoading] = useState(false);
 
-            try{
+  const [hasMore, setHasMore] = useState(true);
 
-                const data = await getPopularMovies();
-                setMovies(data.results);
+  const observer = useRef();
 
-            }
-            catch(error){
+  const debouncedSearch = useDebounce(search, 500);
 
-                console.log(error);
+  useEffect(() => {
 
-            }
+    async function fetchMovies() {
+
+      setLoading(true);
+
+      try {
+
+        let data;
+
+        if (debouncedSearch.trim() === "") {
+
+          data = await getPopularMovies(page);
+
+        } else {
+
+          data = await searchMovies(
+            debouncedSearch,
+            page
+          );
 
         }
 
-        loadMovies();
+        if (page === 1) {
 
-    },[]);
+          setMovies(data.results);
 
-    return (
+        } else {
 
-        <div className="home">
+          setMovies((prev) => {
 
-            <section className="hero">
+            const ids = new Set(
+              prev.map((movie) => movie.id)
+            );
 
-                <h1>🎬 Discover Amazing Movies</h1>
+            const newMovies = data.results.filter(
+              (movie) => !ids.has(movie.id)
+            );
 
-                <p>
-                    Browse the latest popular movies from TMDB.
-                    Search, save favorites and discover your next watch.
-                </p>
+            return [...prev, ...newMovies];
 
-                <SearchBar
-                    value={search}
-                    onChange={(e)=>setSearch(e.target.value)}
-                />
+          });
 
-            </section>
+        }
 
-            <section className="movies-section">
+        setHasMore(page < data.total_pages);
 
-                <h2>Popular Movies</h2>
+      } catch (error) {
 
-                <div className="movie-grid">
+        console.log(error);
 
-                    {
+      }
 
-                        movies.map((movie)=>(
+      setLoading(false);
 
-                            <MovieCard
-                                key={movie.id}
-                                movie={movie}
-                            />
+    }
 
-                        ))
+    fetchMovies();
 
-                    }
+  }, [debouncedSearch, page]);
+
+  useEffect(() => {
+
+    setPage(1);
+
+  }, [debouncedSearch]);
+
+  const lastMovieRef = (node) => {
+
+    if (loading) return;
+
+    if (observer.current) {
+
+      observer.current.disconnect();
+
+    }
+
+    observer.current = new IntersectionObserver(
+
+      (entries) => {
+
+        if (
+
+          entries[0].isIntersecting &&
+          hasMore
+
+        ) {
+
+          setPage((prev) => prev + 1);
+
+        }
+
+      }
+
+    );
+
+    if (node) {
+
+      observer.current.observe(node);
+
+    }
+
+  };
+
+  return (
+
+    <div className="home">
+
+      <section className="hero">
+
+        <h1>🎬 Discover Amazing Movies</h1>
+
+        <p>
+
+          Browse the latest popular movies from TMDB.
+
+          Search, save favorites and discover your next watch.
+
+        </p>
+
+        <SearchBar
+
+          value={search}
+
+          onChange={(e) =>
+            setSearch(e.target.value)
+          }
+
+        />
+
+      </section>
+
+      <section className="movies-section">
+
+        <h2>
+
+          {debouncedSearch
+            ? `Results for "${debouncedSearch}"`
+            : "Popular Movies"}
+
+        </h2>
+
+        <div className="movie-grid">
+
+          {movies.map((movie, index) => {
+
+            if (index === movies.length - 1) {
+
+              return (
+
+                <div
+                  ref={lastMovieRef}
+                  key={movie.id}
+                >
+
+                  <MovieCard movie={movie} />
 
                 </div>
 
-            </section>
+              );
+
+            }
+
+            return (
+
+              <MovieCard
+                key={movie.id}
+                movie={movie}
+              />
+
+            );
+
+          })}
 
         </div>
 
-    );
+        {loading && (
+
+          <div className="loader"></div>
+
+        )}
+
+      </section>
+
+    </div>
+
+  );
 
 }
 
