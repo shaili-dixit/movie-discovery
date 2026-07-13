@@ -109,3 +109,73 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+
+.home{
+
+    padding:30px;
+
+}
+
+.home h1{
+
+    margin-bottom:30px;
+
+    text-align:center;
+
+}
+
+.movie-grid{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
+
+    gap:25px;
+
+}
+
+.movie-card{
+
+    background:#222;
+
+    color:white;
+
+    border-radius:15px;
+
+    overflow:hidden;
+
+    transition:.3s;
+
+    cursor:pointer;
+
+}
+
+.movie-card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.movie-card img{
+
+    width:100%;
+
+    height:320px;
+
+    object-fit:cover;
+
+}
+
+.movie-info{
+
+    padding:15px;
+
+}
+
+.movie-info h3{
+
+    margin-bottom:10px;
+
+}
