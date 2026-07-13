@@ -14,3 +14,21 @@ export async function getPopularMovies() {
 
     return response.json();
 }
+
+export async function searchMovies(query) {
+
+    const response = await fetch(
+
+        `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${query}`
+
+    );
+
+    if(!response.ok){
+
+        throw new Error("Search Failed");
+
+    }
+
+    return response.json();
+
+}

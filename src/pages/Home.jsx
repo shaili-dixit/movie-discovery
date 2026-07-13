@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-
 import { getPopularMovies } from "../services/tmdb";
-
 import MovieCard from "../components/MovieCard";
+import SearchBar from "../components/SearchBar";
 
 function Home() {
 
     const [movies, setMovies] = useState([]);
+    const [search, setSearch] = useState("");
 
     useEffect(() => {
 
@@ -14,13 +14,10 @@ function Home() {
 
             try{
 
-                const data =
-                    await getPopularMovies();
-
+                const data = await getPopularMovies();
                 setMovies(data.results);
 
             }
-
             catch(error){
 
                 console.log(error);
@@ -37,27 +34,44 @@ function Home() {
 
         <div className="home">
 
-            <h1>Popular Movies</h1>
+            <section className="hero">
 
-            <div className="movie-grid">
+                <h1>🎬 Discover Amazing Movies</h1>
 
-                {
+                <p>
+                    Browse the latest popular movies from TMDB.
+                    Search, save favorites and discover your next watch.
+                </p>
 
-                    movies.map((movie)=>(
+                <SearchBar
+                    value={search}
+                    onChange={(e)=>setSearch(e.target.value)}
+                />
 
-                        <MovieCard
+            </section>
 
-                            key={movie.id}
+            <section className="movies-section">
 
-                            movie={movie}
+                <h2>Popular Movies</h2>
 
-                        />
+                <div className="movie-grid">
 
-                    ))
+                    {
 
-                }
+                        movies.map((movie)=>(
 
-            </div>
+                            <MovieCard
+                                key={movie.id}
+                                movie={movie}
+                            />
+
+                        ))
+
+                    }
+
+                </div>
+
+            </section>
 
         </div>
 
