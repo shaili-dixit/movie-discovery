@@ -1,11 +1,22 @@
+import { useNavigate } from "react-router-dom";
+
 function MovieCard({ movie }) {
+
+    const navigate = useNavigate();
 
     const imageUrl =
         `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
 
+    function handleMovieClick() {
+        navigate(`/movie/${movie.id}`);
+    }
+
     return (
 
-        <div className="movie-card">
+        <div
+            className="movie-card fade-in"
+            onClick={handleMovieClick}
+        >
 
             <img
                 src={imageUrl}
@@ -13,7 +24,7 @@ function MovieCard({ movie }) {
                 loading="lazy"
             />
 
-            <div className="movie-info">
+            <div className="movie-content">
 
                 <h3>{movie.title}</h3>
 
@@ -21,7 +32,7 @@ function MovieCard({ movie }) {
                     📅 {movie.release_date?.slice(0,4)}
                 </p>
 
-                <p>
+                <p className="rating">
                     ⭐ {movie.vote_average.toFixed(1)}
                 </p>
 

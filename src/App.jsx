@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 
 import Home from "./pages/Home";
 import Favorites from "./pages/Favorites";
+import MovieDetails from "./pages/MovieDetails";
 
 function App() {
 
@@ -23,6 +24,11 @@ function App() {
         <Route
           path="/favorites"
           element={<Favorites />}
+        />
+
+        <Route
+          path="/movie/:id"
+          element={<MovieDetails />}
         />
 
       </Routes>
