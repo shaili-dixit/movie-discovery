@@ -6,7 +6,9 @@ import {
 
 import MovieCard from "../components/MovieCard";
 import SearchBar from "../components/SearchBar";
+import MoodSearch from "../components/MoodSearch";
 import useDebounce from "../hooks/useDebounce";
+import { getMovieFromMood } from "../services/groq";
 
 function Home() {
 
@@ -22,6 +24,32 @@ function Home() {
   const observer = useRef();
 
   const debouncedSearch = useDebounce(search, 500);
+
+  async function handleMoodSearch(mood) {
+
+    try {
+
+      setLoading(true);
+
+      const movieTitle = await getMovieFromMood(mood);
+
+      setSearch(movieTitle);
+
+      setPage(1);
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Unable to get movie recommendation.");
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  }
 
   useEffect(() => {
 
@@ -144,13 +172,12 @@ function Home() {
         </p>
 
         <SearchBar
-
           value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
-
+        <MoodSearch
+          onMoodSearch={handleMoodSearch}
         />
 
       </section>
